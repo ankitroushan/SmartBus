@@ -4,7 +4,7 @@ SmartBus is a web-based bus tracking system built using Java and Spring Boot. It
 
 The application has three main parts: an admin dashboard, a driver dashboard and a public passenger page. The frontend is kept simple using HTML, CSS and JavaScript, while the main application logic is handled by the Spring Boot backend.
 
-## Features
+## Features :
 
 ### Admin
 - Secure admin login.
@@ -83,7 +83,7 @@ All route progress is calculated once, on the backend (`GeoUtils.computeRoutePro
 - **On route / off route** – if the bus is far from the line between its last and next stop, the state is `OFF_ROUTE` and the ETA is hidden until it rejoins the route.
 - **ETA** – remaining distance (straight line × 1.22 road factor) ÷ current speed (25 km/h assumed when the bus is almost stationary), calculated for every upcoming stop so the passenger sees the ETA to *their* boarding and destination stop. OSRM is used only to draw the road line on the map.
 
-## How to run
+## How to run 
 
 You need Java 21 and MySQL 8.
 
