@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartBus | Admin Dashboard</title>
+
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h2>SmartBus</h2>
+            <span>Administration Portal</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <button class="nav-item active" data-section="overview">
+                Overview
+            </button>
+
+            <button class="nav-item" data-section="drivers">
+                Drivers
+            </button>
+
+            <button class="nav-item" data-section="buses">
+                Buses
+            </button>
+
+            <button class="nav-item" data-section="stops">
+                Stops
+            </button>
+
+            <button class="nav-item" data-section="routes">
+                Routes
+            </button>
+
+            <button class="nav-item" data-section="trips">
+                Schedule &amp; Assign Trips
+            </button>
+
+            <button class="nav-item" data-section="running-trips">
+                Running Trips
+            </button>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="/logout" id="admin-logout-link">Logout</a>
+            <a href="../index.html">Passenger View →</a>
+        </div>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+                <h1 id="page-title">Dashboard Overview</h1>
+                <p>Manage drivers, buses, stops, directional routes, and trip schedules.</p>
+            </div>
+
+            <div class="admin-badge">
+                Administrator
+            </div>
+
+        </header>
+
+
+        <!-- Overview Section -->
+        <section id="overview-section" class="content-section">
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <span>Total Drivers</span>
+                    <h2 id="total-drivers">--</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>Total Buses</span>
+                    <h2 id="total-buses">--</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>Total Stops</span>
+                    <h2 id="total-stops">--</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>Total Routes</span>
+                    <h2 id="total-routes">--</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>Scheduled Trips</span>
+                    <h2 id="total-scheduled-trips">--</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>Running Trips</span>
+                    <h2 id="total-running-trips">--</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>Completed Trips</span>
+                    <h2 id="total-completed-trips">--</h2>
+                </div>
+
+                <div class="stat-card">
+                    <span>All Trips</span>
+                    <h2 id="total-trips">--</h2>
+                </div>
+
+            </div>
+
+            <div class="panel">
+                <h2>Directional Route &amp; Trip Workflow</h2>
+                <p>
+                    Create separate <strong>Routes</strong> for each travel direction with ordered stops.
+                    When scheduling a trip, assign an available <strong>Driver</strong>, an active <strong>Bus</strong>,
+                    and the specific <strong>Route</strong> for that journey.
+                </p>
+            </div>
+
+            <div class="panel">
+                <h2>Admin Account Management</h2>
+                <p>Register a new 5-digit Admin ID or update an existing Admin password (minimum 8 characters with letters and numbers).</p>
+
+                <form id="admin-account-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Admin ID (5 digits)</label>
+                            <input
+                                type="text"
+                                name="adminId"
+                                pattern="[0-9]{5}"
+                                maxlength="5"
+                                placeholder="e.g. 10002"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Action</label>
+                            <select name="mode" id="admin-account-mode" required>
+                                <option value="POST">Register New Admin</option>
+                                <option value="PUT">Update Existing Admin Password</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>New Password (min 8 chars, letters + numbers)</label>
+                            <input
+                                type="password"
+                                name="password"
+                                minlength="8"
+                                placeholder="Enter new password"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Current Password (required for password update)</label>
+                            <input
+                                type="password"
+                                name="oldPassword"
+                                placeholder="Enter current password when updating">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="primary-btn">Submit Admin Action</button>
+                    </div>
+                </form>
+            </div>
+
+        </section>
+
+
+        <!-- Drivers Section -->
+        <section id="drivers-section" class="content-section hidden">
+
+            <div class="section-heading">
+                <h2>Driver Management</h2>
+                <button class="primary-btn" id="show-driver-form">
+                    + Add Driver
+                </button>
+            </div>
+
+            <div id="driver-form-container" class="panel hidden"></div>
+
+            <div class="panel">
+                <div class="table-heading">
+                    <h3>All Drivers</h3>
+                    <button class="secondary-btn" id="refresh-drivers">
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Driver Email ID</th>
+                            <th>Phone</th>
+                            <th>License</th>
+                            <th>Account Status</th>
+                            <th>Availability</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="drivers-table">
+                        <tr>
+                            <td colspan="8">Loading drivers...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Buses Section -->
+        <section id="buses-section" class="content-section hidden">
+
+            <div class="section-heading">
+                <h2>Bus Management</h2>
+                <button class="primary-btn" id="show-bus-form">
+                    + Add Bus
+                </button>
+            </div>
+
+            <div id="bus-form-container" class="panel hidden"></div>
+
+            <div class="panel">
+
+                <div class="table-heading">
+                    <h3>All Buses</h3>
+                    <button class="secondary-btn" id="refresh-buses">
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Bus Number</th>
+                            <th>Registration Number</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="buses-table">
+                        <tr>
+                            <td colspan="5">Loading buses...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Stops Section -->
+        <section id="stops-section" class="content-section hidden">
+
+            <div class="section-heading">
+                <h2>Stop Management</h2>
+                <button class="primary-btn" id="show-stop-form">
+                    + Add Stop
+                </button>
+            </div>
+
+            <div id="stop-form-container" class="panel hidden"></div>
+
+            <div class="panel">
+
+                <div class="table-heading">
+                    <h3>All Stops</h3>
+                    <button class="secondary-btn" id="refresh-stops">
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Stop Name</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="stops-table">
+                        <tr>
+                            <td colspan="6">Loading stops...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Routes Section -->
+        <section id="routes-section" class="content-section hidden">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Route Management</h2>
+                    <p style="font-size: 13px; color: #64748b; margin-top: 4px;">
+                        Create routes with a unique route code and ordered stops. Create a separate route for a return direction.
+                    </p>
+                </div>
+                <button class="primary-btn" id="show-route-form">
+                    + Add Route
+                </button>
+            </div>
+
+            <div id="route-form-container" class="panel hidden"></div>
+
+            <div class="panel">
+
+                <div class="table-heading">
+                    <h3>All Routes</h3>
+                    <button class="secondary-btn" id="refresh-routes">
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Route Code</th>
+                            <th>Status</th>
+                            <th>Ordered Stop Sequence</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="routes-table">
+                        <tr>
+                            <td colspan="5">Loading routes...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Trips Section -->
+        <section id="trips-section" class="content-section hidden">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Driver &amp; Bus Assignment / Trip Scheduling</h2>
+                    <p style="font-size: 13px; color: #64748b; margin-top: 4px;">
+                        Assign a Driver and Bus to a Route and schedule the trip window.
+                    </p>
+                </div>
+                <button class="primary-btn" id="show-trip-form">
+                    + Assign &amp; Schedule Trip
+                </button>
+            </div>
+
+            <div id="trip-form-container" class="panel hidden"></div>
+
+            <div class="panel">
+
+                <div class="table-heading">
+                    <h3>Scheduled &amp; All Trips</h3>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <select id="trip-status-filter" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                            <option value="ALL">All Statuses</option>
+                            <option value="SCHEDULED">Scheduled Only</option>
+                            <option value="RUNNING">Running Only</option>
+                            <option value="OVERDUE">Overdue Only</option>
+                            <option value="COMPLETED">Completed Only</option>
+                            <option value="CANCELLED">Cancelled Only</option>
+                        </select>
+                        <button class="secondary-btn" id="refresh-trips">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Trip UUID</th>
+                            <th>Bus</th>
+                            <th>Assigned Driver</th>
+                            <th>Route &amp; Journey</th>
+                            <th>Status</th>
+                            <th>Scheduled Start</th>
+                            <th>Scheduled End</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="trips-table">
+                        <tr>
+                            <td colspan="9">Loading trips...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Running Trips Section -->
+        <section id="running-trips-section" class="content-section hidden">
+
+            <div class="section-heading">
+                <h2>Active Running Trips</h2>
+
+                <button class="secondary-btn" id="refresh-running-trips">
+                    Refresh
+                </button>
+            </div>
+
+            <div class="panel">
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Trip UUID</th>
+                            <th>Bus</th>
+                            <th>Driver</th>
+                            <th>Route</th>
+                            <th>Speed</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Last GPS Update</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="running-trips-table">
+                        <tr>
+                            <td colspan="8">Loading running trips...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+
+
+        <div id="notification" class="notification hidden"></div>
+
+    </main>
+
+</div>
+
+
+<script src="../js/admin.js"></script>
+
+</body>
+</html>

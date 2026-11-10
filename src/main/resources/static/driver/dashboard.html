@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartBus | Driver Dashboard</title>
+
+    <link rel="stylesheet" href="../css/driver.css">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <header class="topbar">
+
+        <div class="logo">
+            <h1>SmartBus</h1>
+            <p>Driver Console &amp; Automatic GPS Telemetry</p>
+        </div>
+
+        <div class="header-actions">
+            <a href="../index.html">Passenger View</a>
+            <a href="/logout" id="driver-logout-link">Logout</a>
+        </div>
+
+    </header>
+
+
+    <main class="main-content">
+
+        <section class="welcome-section">
+
+            <h2>My Assigned Trips</h2>
+
+            <p>Start your scheduled trip to automatically activate live browser GPS sharing with passengers.</p>
+
+        </section>
+
+
+        <section class="location-section">
+
+            <div class="section-heading">
+                <h3>Automatic Browser GPS Sharing</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span id="gps-badge" class="status-badge status-unknown">STANDBY</span>
+                    <button type="button" id="retry-gps-btn" class="secondary-btn hidden">
+                        ↻ Retry GPS Permission / Connection
+                    </button>
+                </div>
+            </div>
+
+            <p id="gps-status" class="gps-status">
+                Waiting for an active running trip. Click "Start Trip" below to request browser GPS permission.
+            </p>
+
+            <div class="gps-telemetry-grid" id="gps-telemetry-grid">
+                <div class="telemetry-item">
+                    <span>Current Latitude</span>
+                    <strong id="gps-lat">—</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>Current Longitude</span>
+                    <strong id="gps-lng">—</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>Device Speed</span>
+                    <strong id="gps-speed">—</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>GPS Accuracy</span>
+                    <strong id="gps-accuracy">—</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>Updates Sent</span>
+                    <strong id="gps-count">0</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>Last Sent to Server</span>
+                    <strong id="gps-last-sent">—</strong>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section class="trip-section">
+
+            <div class="section-heading">
+
+                <h3>Assigned Trips</h3>
+
+                <button id="refresh-trips" class="secondary-btn">
+                    Refresh Trips
+                </button>
+
+            </div>
+
+            <div id="trip-list" class="trip-list">
+
+                <p>Loading your trips...</p>
+
+            </div>
+
+        </section>
+
+
+        <div id="notification" class="notification hidden"></div>
+
+    </main>
+
+</div>
+
+<script src="../js/driver.js"></script>
+
+</body>
+</html>

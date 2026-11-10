@@ -1,0 +1,633 @@
+{
+  "info": {
+    "name": "SmartBus API",
+    "description": "API requests for the SmartBus application, grouped by authentication, admin operations, driver operations and passenger requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "adminUsername",
+      "value": "10001"
+    },
+    {
+      "key": "adminPassword",
+      "value": "your-initial-admin-password"
+    },
+    {
+      "key": "newAdminPassword",
+      "value": "your-new-admin-password"
+    },
+    {
+      "key": "driverUsername",
+      "value": "driver@example.com"
+    },
+    {
+      "key": "driverPin",
+      "value": "your-driver-pin"
+    },
+    {
+      "key": "csrfToken",
+      "value": ""
+    },
+    {
+      "key": "stopAId",
+      "value": ""
+    },
+    {
+      "key": "stopBId",
+      "value": ""
+    },
+    {
+      "key": "routeId",
+      "value": ""
+    },
+    {
+      "key": "busId",
+      "value": ""
+    },
+    {
+      "key": "driverId",
+      "value": ""
+    },
+    {
+      "key": "tripDbId",
+      "value": ""
+    },
+    {
+      "key": "tripId",
+      "value": ""
+    },
+    {
+      "key": "scheduledStartTime",
+      "value": ""
+    },
+    {
+      "key": "scheduledEndTime",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Authentication",
+      "description": "Start by getting a CSRF token. Log in as admin and change the initial password before using admin APIs.",
+      "item": [
+        {
+          "name": "Get session and CSRF token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cookies = pm.response.headers.all().filter(h => h.key.toLowerCase() === 'set-cookie').map(h => h.value).join('; ');",
+                  "const match = cookies.match(/(?:^|[,; ]+)XSRF-TOKEN=([^;]+)/);",
+                  "if (match) pm.collectionVariables.set('csrfToken', decodeURIComponent(match[1]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": "{{baseUrl}}/login",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{adminUsername}}"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPassword}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Check signed-in user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/me"
+          }
+        },
+        {
+          "name": "Change initial admin password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"adminId\": \"{{adminUsername}}\",\n  \"oldPassword\": \"{{adminPassword}}\",\n  \"password\": \"{{newAdminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Admin Operations",
+      "description": "Run these requests in order. IDs are saved automatically from successful API responses.",
+      "item": [
+        {
+          "name": "Create Stop A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/stops",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stopName\": \"SmartBus Test Stop A\",\n  \"latitude\": 24.4851,\n  \"longitude\": 86.6948\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.id !== undefined) pm.collectionVariables.set('stopAId', String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Stop B",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/stops",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stopName\": \"SmartBus Test Stop B\",\n  \"latitude\": 24.492,\n  \"longitude\": 86.68\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.id !== undefined) pm.collectionVariables.set('stopBId', String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/route",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"routeCode\": \"SB-TEST-01\",\n  \"stopIds\": [{{stopAId}}, {{stopBId}}],\n  \"routeStatus\": \"AVAILABLE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.id !== undefined) pm.collectionVariables.set('routeId', String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Bus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/buses",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"busNumber\": \"SB-TEST-01\",\n  \"registrationNumber\": \"WB00TEST01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.id !== undefined) pm.collectionVariables.set('busId', String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Activate Bus",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/buses/{{busId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"busNumber\": \"SB-TEST-01\",\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create Driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/drivers",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverName\": \"Test Driver\",\n  \"driverId\": \"{{driverUsername}}\",\n  \"phoneNumber\": \"9876543210\",\n  \"licenseNumber\": \"TEST-LIC-001\",\n  \"pin\": \"{{driverPin}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.id !== undefined) pm.collectionVariables.set('driverId', String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schedule Trip",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/trips",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"busId\": {{busId}},\n  \"driverId\": {{driverId}},\n  \"routeId\": {{routeId}},\n  \"scheduledStartTime\": \"{{scheduledStartTime}}\",\n  \"scheduledEndTime\": \"{{scheduledEndTime}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = Date.now();",
+                  "pm.collectionVariables.set('scheduledStartTime', new Date(now - 120000).toISOString());",
+                  "pm.collectionVariables.set('scheduledEndTime', new Date(now + 7200000).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.id !== undefined) pm.collectionVariables.set('tripDbId', String(data.id));",
+                  "  if (data.tripId) pm.collectionVariables.set('tripId', data.tripId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Trips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/trips"
+          }
+        },
+        {
+          "name": "Cancel Scheduled Trip (Optional)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/trips/{{tripDbId}}/cancel"
+          }
+        },
+        {
+          "name": "Force Complete Trip (Optional)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/trips/{{tripDbId}}/force-complete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Driver Operations",
+      "description": "Log in with the driver created in the Admin folder. This login replaces the current admin session.",
+      "item": [
+        {
+          "name": "Driver Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": "{{baseUrl}}/login",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{driverUsername}}"
+                },
+                {
+                  "key": "password",
+                  "value": "{{driverPin}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Assigned Trips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/trips/my-trips"
+          }
+        },
+        {
+          "name": "Start Assigned Trip",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/trips/{{tripDbId}}/start"
+          }
+        },
+        {
+          "name": "Send GPS Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/trips/location",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tripId\": \"{{tripId}}\",\n  \"latitude\": 24.488,\n  \"longitude\": 86.687,\n  \"speed\": 2.5,\n  \"heading\": 310.0,\n  \"accuracy\": 12.0,\n  \"capturedAt\": \"{{$isoTimestamp}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Sample coordinates for API testing. Actual tracking uses the driver's browser GPS. The backend calculates speed from accepted GPS updates."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Passenger Requests",
+      "description": "These GET requests are public and do not require an admin or driver login.",
+      "item": [
+        {
+          "name": "List Active Stops",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/stops"
+          }
+        },
+        {
+          "name": "List Routes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/route"
+          }
+        },
+        {
+          "name": "List Buses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/buses"
+          }
+        },
+        {
+          "name": "Search Trips Between Stops",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/trips/search?from=SmartBus%20Test%20Stop%20A&to=SmartBus%20Test%20Stop%20B"
+          }
+        },
+        {
+          "name": "Get Live Trip Location",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/trips/{{tripId}}/location"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Finish Trip",
+      "description": "Run after checking passenger live tracking. This completes the assigned trip.",
+      "item": [
+        {
+          "name": "Complete Assigned Trip",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/trips/{{tripDbId}}/complete"
+          }
+        }
+      ]
+    }
+  ]
+}

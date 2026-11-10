@@ -1,0 +1,330 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6fb;
+    color: #1e293b;
+}
+
+
+/* HEADER */
+
+.topbar {
+    background: #172554;
+    color: white;
+    padding: 20px 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo h1 {
+    font-size: 25px;
+}
+
+.logo p {
+    color: #bfdbfe;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 20px;
+}
+
+.header-actions a {
+    color: #bfdbfe;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.header-actions a:hover {
+    color: white;
+}
+
+
+/* MAIN CONTENT */
+
+.main-content {
+    max-width: 1200px;
+    margin: 35px auto;
+    padding: 0 25px;
+}
+
+.welcome-section {
+    margin-bottom: 24px;
+}
+
+.welcome-section h2 {
+    color: #172554;
+    font-size: 27px;
+    margin-bottom: 8px;
+}
+
+.welcome-section p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* SECTIONS */
+
+.trip-section,
+.location-section {
+    background: white;
+    padding: 25px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.section-heading h3,
+.location-section h3 {
+    color: #172554;
+    font-size: 19px;
+}
+
+
+/* GPS TELEMETRY */
+
+.gps-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.telemetry-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.telemetry-item span {
+    display: block;
+    font-size: 11.5px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.telemetry-item strong {
+    display: block;
+    font-size: 14px;
+    color: #0f172a;
+}
+
+
+/* TRIP CARDS */
+
+.trip-list {
+    display: grid;
+    gap: 15px;
+}
+
+.trip-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    background: #ffffff;
+}
+
+.trip-card-running {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.12);
+}
+
+.trip-card h3 {
+    color: #172554;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.trip-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.trip-details p {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.trip-details strong {
+    color: #334155;
+}
+
+
+/* STATUS */
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-scheduled {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-running {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-completed {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.status-error {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-unknown {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+
+/* BUTTONS */
+
+.primary-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary-btn:hover {
+    background: #1d4ed8;
+}
+
+.complete-btn {
+    background: #15803d;
+}
+
+.complete-btn:hover {
+    background: #166534;
+}
+
+.secondary-btn {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 9px 15px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.secondary-btn:hover {
+    background: #dbeafe;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+/* GPS STATUS */
+
+.gps-status {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #475569;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.gps-status.active {
+    color: #15803d;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    font-weight: 600;
+}
+
+.gps-status.error {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #fecaca;
+    font-weight: 600;
+}
+
+
+/* NOTIFICATION */
+
+.notification {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    max-width: 350px;
+    background: #172554;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 7px;
+    font-size: 13px;
+    z-index: 1000;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+
+    .topbar {
+        padding: 18px;
+    }
+
+    .main-content {
+        padding: 0 15px;
+    }
+
+    .trip-section,
+    .location-section {
+        padding: 18px;
+    }
+
+    .trip-details {
+        grid-template-columns: 1fr;
+    }
+
+}

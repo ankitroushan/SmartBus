@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartBus - Real-Time Bus Tracking System with MapLibre GL JS &amp; OpenFreeMap">
+    <title>SmartBus | Live Bus Tracking</title>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<!-- navbar -->
+<header class="navbar">
+
+    <a href="index.html" class="logo">
+        <span class="logo-icon">🚌</span>
+        <span>Smart<span class="highlight">Bus</span></span>
+    </a>
+
+    <nav class="nav-links" id="public-nav-links">
+        <a href="index.html">Home</a>
+        <a href="/login.html" class="login-link" id="nav-login-link">Login</a>
+    </nav>
+
+</header>
+
+<main>
+
+    <!-- search section -->
+    <section class="hero" id="home">
+
+        <!-- search form -->
+        <div class="search-content">
+
+            <span class="tag">
+               REAL-TIME BUS & ROUTE TRACKING
+            </span>
+
+            <h1>
+                Track Your <span>Bus</span> Live
+            </h1>
+
+            <p>
+                Find available buses and track their live location, route progress, and estimated arrival time.
+            </p>
+
+            <form class="search-box" id="busSearchForm" autocomplete="off">
+
+                <div class="input-group autocomplete-group">
+                    <label for="fromStop">From (Boarding Stop)</label>
+                    <input
+                            type="text"
+                            id="fromStop"
+                            name="from"
+                            placeholder="Type or select starting stop"
+                            autocomplete="off"
+                            required>
+                    <input type="hidden" id="fromStopId" name="fromStopId">
+                    <div id="fromStopSuggestions" class="suggestions-dropdown hidden"></div>
+                </div>
+
+                <div class="swap-row">
+                    <button type="button" id="swapStopsBtn" class="swap-btn" title="Swap From and To stops">
+                        ⇅ Swap Stops
+                    </button>
+                </div>
+
+                <div class="input-group autocomplete-group">
+                    <label for="toStop">To (Destination Stop)</label>
+                    <input
+                            type="text"
+                            id="toStop"
+                            name="to"
+                            autocomplete="off"
+                            placeholder="Type or select destination stop"
+
+                            required>
+                    <input type="hidden" id="toStopId" name="toStopId">
+                    <div id="toStopSuggestions" class="suggestions-dropdown hidden"></div>
+                </div>
+
+                <button type="submit" class="search-button" id="searchButton">
+                    Search Available Buses →
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- overview map -->
+        <div class="map-visual">
+
+            <div class="map-card">
+
+                <div class="map-heading">
+                    <div class="map-heading-icon">
+                        🗺️
+                    </div>
+                    <div>
+                        <h3>Network Stops</h3>
+                    </div>
+                </div>
+
+                <div id="overviewMap" class="map-area" aria-label="Map of all bus stops"></div>
+
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- search results and live tracking -->
+    <section class="results-section hidden" id="search-results-section">
+        <div class="results-container">
+            <div class="results-header">
+                <div>
+                    <span class="tag">AVAILABLE BUSES</span>
+                    <h2 id="search-results-title">Search Results</h2>
+                </div>
+            </div>
+
+            <div id="search-results-list" class="results-list"></div>
+
+            <!-- live tracking box -->
+            <div id="live-tracking-box" class="tracking-box hidden">
+
+                <!-- tracking header -->
+                <div class="tracking-header">
+                    <div class="tracking-title-group">
+                        <div class="live-pulse-indicator" id="live-pulse-dot"></div>
+                        <div>
+                            <h3 id="tracking-bus-title">Live Bus Tracking</h3>
+                            <p id="tracking-status-text">Fetching latest GPS coordinates and route progress...</p>
+                        </div>
+                    </div>
+                    <div class="tracking-actions">
+                        <span id="routing-engine-badge" class="routing-badge">Route Geometry</span>
+                        <button type="button" id="auto-follow-btn" class="secondary-btn active-toggle" title="Automatically pan map to follow moving bus">
+                            🎯 Auto-Follow: ON
+                        </button>
+                        <button type="button" id="fit-route-btn" class="secondary-btn" title="Zoom map to show complete route">
+                            🗺️ Full Route
+                        </button>
+                        <button type="button" id="refresh-location-btn" class="secondary-btn">
+                            ↻ Refresh Now
+                        </button>
+                        <button type="button" id="close-tracking-btn" class="secondary-btn close-btn">
+                            ✕ Close Tracking
+                        </button>
+                    </div>
+                </div>
+
+                <div id="trip-banner" class="trip-banner hidden"></div>
+
+                <!-- journey progress -->
+                <div class="journey-progress-card">
+                    <div class="journey-progress-header">
+                        <div class="jp-endpoint">
+                            <span class="jp-label">ORIGIN</span>
+                            <strong id="jp-origin-name">—</strong>
+                        </div>
+                        <div class="jp-center-stats">
+                            <span id="jp-travelled-text">0.0 km travelled</span>
+                            <strong class="jp-percent-badge" id="jp-percent-text">0%</strong>
+                            <span id="jp-remaining-text">0.0 km remaining</span>
+                        </div>
+                        <div class="jp-endpoint jp-endpoint-right">
+                            <span class="jp-label">DESTINATION</span>
+                            <strong id="jp-dest-name">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="journey-progress-track">
+                        <div class="journey-progress-fill" id="jp-bar-fill" style="width: 0%;"></div>
+                        <div class="journey-progress-bus-knob" id="jp-bus-knob" style="left: 0%;">🚌</div>
+                    </div>
+
+                    <div class="journey-stop-summary-row">
+                        <div class="jp-stop-pill">
+                            <span>Previous Stop</span>
+                            <strong id="track-prev-stop">—</strong>
+                        </div>
+                        <div class="jp-stop-pill jp-stop-pill-current">
+                            <span>Current / Nearest Stop</span>
+                            <strong id="track-current-stop">—</strong>
+                        </div>
+                        <div class="jp-stop-pill jp-stop-pill-next">
+                            <span>Next Upcoming Stop</span>
+                            <strong id="track-next-stop">—</strong>
+                        </div>
+                        <div class="jp-stop-pill">
+                            <span>Final Destination</span>
+                            <strong id="track-dest-stop">—</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- map on the left, stop timeline on the right -->
+                <div class="wimt-split-layout">
+
+                    <!-- map and live info -->
+                    <div class="wimt-map-column">
+                        <div id="liveMap" class="live-map" aria-label="Live bus map"></div>
+
+                        <!-- live info panel -->
+                        <div class="live-info-panel">
+                            <div class="live-info-panel-header">
+                                <h4>Live Bus Information Panel</h4>
+                                <span id="track-direction-heading" class="heading-pill">Heading: —</span>
+                            </div>
+
+                            <div class="eta-highlight-grid">
+                                <div class="stat-card stat-eta">
+                                    <span id="eta-from-label">Est. ETA to Next Stop</span>
+                                    <strong id="eta-from-value">—</strong>
+                                    <small id="eta-from-sub">&nbsp;</small>
+                                </div>
+                                <div class="stat-card stat-eta">
+                                    <span id="eta-to-label">Est. ETA to Destination</span>
+                                    <strong id="eta-to-value">—</strong>
+                                    <small id="eta-to-sub">&nbsp;</small>
+                                </div>
+                                <div class="stat-card">
+                                    <span>Current Speed</span>
+                                    <strong id="track-speed">—</strong>
+                                    <small id="track-speed-note">&nbsp;</small>
+                                </div>
+                                <div class="stat-card">
+                                    <span>Distance Remaining</span>
+                                    <strong id="track-distance-remaining">—</strong>
+                                    <small id="track-distance-travelled">&nbsp;</small>
+                                </div>
+                            </div>
+
+                            <div class="tracking-details">
+                                <div class="tracking-item">
+                                    <span>Bus Number</span>
+                                    <strong id="info-bus-number">—</strong>
+                                </div>
+                                <div class="tracking-item">
+                                    <span>Route Name / Code</span>
+                                    <strong id="info-route-name">—</strong>
+                                </div>
+                                <div class="tracking-item">
+                                    <span>Trip Status</span>
+                                    <strong id="track-trip-status">—</strong>
+                                </div>
+                                <div class="tracking-item">
+                                    <span>Last GPS Update Time</span>
+                                    <strong id="track-updated-at">—</strong>
+                                </div>
+                                <div class="tracking-item">
+                                    <span>Live Latitude</span>
+                                    <strong id="track-latitude">—</strong>
+                                </div>
+                                <div class="tracking-item">
+                                    <span>Live Longitude</span>
+                                    <strong id="track-longitude">—</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- stop timeline -->
+                    <div class="wimt-timeline-panel">
+                        <div class="wimt-timeline-header">
+                            <div>
+                                <span class="wimt-badge">LIVE ROUTE TIMELINE</span>
+                                <h4>Stop-by-Stop Progress</h4>
+                            </div>
+                            <small id="wimt-stops-count">0 stops</small>
+                        </div>
+                        <div id="wimt-timeline-list" class="wimt-timeline-list">
+                            <p class="wimt-empty">Select a bus to view live stop-by-stop progress.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- about -->
+    <section class="about" id="about">
+
+        <span class="tag">
+            ABOUT SMARTBUS
+        </span>
+
+        <h2>
+            Real-Time Bus Tracking System
+        </h2>
+
+        <p>
+            SmartBus helps passengers track buses in real time, view route progress,
+            and check estimated arrival times using live GPS updates.
+        </p>
+
+    </section>
+
+</main>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+
+</html>

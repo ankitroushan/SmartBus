@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBus | Staff Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-section {
+            min-height: calc(100vh - 76px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(125deg, #f0f6ff 0%, #ffffff 100%);
+        }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+        }
+        .login-card h1 {
+            font-size: 24px;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+        .login-card p {
+            font-size: 13.5px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        .login-alert {
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .login-alert-error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+        .login-alert-info {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="index.html" class="logo">
+        <span class="logo-icon">🚌</span>
+        <span>Smart<span class="highlight">Bus</span></span>
+    </a>
+
+    <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="login.html" class="login-link">Login</a>
+    </nav>
+</header>
+
+<main class="login-section">
+    <div class="login-card">
+        <h1>Staff Sign In</h1>
+        <p>Enter your 5-digit Admin ID or Driver Email to continue to your dashboard.</p>
+
+        <div id="login-alert" class="login-alert hidden"></div>
+
+        <form action="/login" method="POST" id="login-form">
+            <input type="hidden" name="_csrf" id="csrf-token" value="">
+
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Admin ID or driver email"
+                    autocomplete="username"
+                    required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password / PIN</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Admin password or Driver PIN"
+                    autocomplete="current-password"
+                    required>
+            </div>
+
+            <button type="submit" class="search-button" id="login-submit-btn">Login</button>
+        </form>
+    </div>
+</main>
+
+<script>
+    (function () {
+        const alertBox = document.getElementById("login-alert");
+        const csrfInput = document.getElementById("csrf-token");
+        const loginForm = document.getElementById("login-form");
+        const params = new URLSearchParams(window.location.search);
+
+        function readCsrfCookie() {
+            const match = document.cookie
+                .split("; ")
+                .find(function (row) { return row.startsWith("XSRF-TOKEN="); });
+            return match ? decodeURIComponent(match.split("=")[1]) : "";
+        }
+
+        function syncCsrfField() {
+            const token = readCsrfCookie();
+            if (csrfInput && token) {
+                csrfInput.value = token;
+            }
+            return token;
+        }
+
+        function showMessage(text, isError) {
+            if (!alertBox) return;
+            alertBox.textContent = text;
+            alertBox.className = "login-alert " + (isError ? "login-alert-error" : "login-alert-info");
+        }
+
+        if (params.has("locked")) {
+            showMessage("Too many failed login attempts. Account is temporarily locked for 5 minutes.", true);
+        } else if (params.has("disabled")) {
+            showMessage("Account disabled. Please contact an administrator.", true);
+        } else if (params.has("denied")) {
+            showMessage("Access denied for that page. Please sign in with an authorized account.", true);
+        } else if (params.has("error")) {
+            showMessage("Invalid username or password", true);
+        } else if (params.has("logout")) {
+            showMessage("Logged out", false);
+        }
+
+        syncCsrfField();
+
+        fetch("/api/me", { credentials: "same-origin", headers: { Accept: "application/json" } })
+            .then(function (res) {
+                syncCsrfField();
+                return res.ok ? res.json() : null;
+            })
+            .then(function (data) {
+                syncCsrfField();
+                if (data && data.authenticated) {
+                    if (data.role === "ROLE_ADMIN") {
+                        window.location.replace("/admin/dashboard.html");
+                    } else if (data.role === "ROLE_DRIVER") {
+                        window.location.replace("/driver/dashboard.html");
+                    }
+                }
+            })
+            .catch(function () {});
+
+        if (loginForm) {
+            loginForm.addEventListener("submit", function (event) {
+                if (syncCsrfField()) {
+                    return;
+                }
+                event.preventDefault();
+                fetch("/api/me", { credentials: "same-origin", headers: { Accept: "application/json" } })
+                    .finally(function () {
+                        syncCsrfField();
+                        loginForm.submit();
+                    });
+            });
+        }
+    })();
+</script>
+
+</body>
+</html>
