@@ -1,2 +1,10 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+
+# Keep GitHub Linguist's repository language breakdown aligned with the actual source.
+*.java linguist-language=Java linguist-detectable=true
+*.html linguist-language=HTML linguist-detectable=true
+*.css linguist-language=CSS linguist-detectable=true
+*.js linguist-language=JavaScript linguist-detectable=true
+*.sql linguist-language=SQL linguist-detectable=true
+*.xml linguist-language=XML linguist-detectable=true
